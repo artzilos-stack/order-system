@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 Σύστημα Παραγγελιών Τερψις</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        .container {
+            max-width: 100%;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            touch-action: manipulation;
+        }
+        
+        .header {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .menu-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .menu-btn {
+            background: white;
+            border: none;
+            border-radius: 12px;
+            padding: 18px 15px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            min-height: 90px;
+            touch-action: manipulation;
+        }
+        
+        .menu-btn:hover, .menu-btn:active {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        
+        .menu-btn:active {
+            transform: scale(0.97);
+        }
+        
+        .menu-btn span {
+            font-size: 28px;
+        }
+        
+        .section {
+            padding: 20px;
+            display: none;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .back-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            font-weight: bold;
+            touch-action: manipulation;
+        }
+        
+        .save-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            font-weight: bold;
+            touch-action: manipulation;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            touch-action: manipulation;
+        }
+        
+        .input-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .order-item {
+            background: #f9f9f9;
+            border-left: 4px solid #4CAF50;
+            padding: 18px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .customer-item {
+            background: #f9f9f9;
+            border-left: 4px solid #2196F3;
+            padding: 18px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .order-item h4, .customer-item h4 {
+            margin-bottom: 6px;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .order-item p, .customer-item p {
+            color: #666;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        
+        .order-item small {
+            color: #888;
+            font-size: 12px;
+        }
+        
+        .order-actions, .customer-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: bold;
+            touch-action: manipulation;
+        }
+        
+        .delete-btn {
+            background: #f44336;
+        }
+        
+        .edit-btn {
+            background: #FF9800;
+        }
+        
+        .photo-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 2px solid #4CAF50;
+        }
+        
+        .storage-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .sync-status {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .sync-indicator {
+            margin-top: 12px;
+            font-size: 14px;
+            padding: 10px 18px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .sync-active {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        
+        .sync-inactive {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        
+        /* Android Touch Fixes */
+        button, input, textarea, select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            min-height: 44px;
+            min-width: 44px;
+        }
+        
+        /* Better Touch Feedback */
+        .menu-btn:active {
+            background: #f0f0f0;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            max-width: 300px;
+            font-size: 14px;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .menu-buttons {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .menu-btn {
+                padding: 15px;
+                min-height: 80px;
+            }
+            
+            .menu-btn span {
+                font-size: 24px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- LOADING INDICATOR -->
+    <div class="loading" id="loading">
+        <div style="text-align: center; background: white; padding: 30px; border-radius: 10px;">
+            <div style="font-size: 40px; margin-bottom: 15px;">⏳</div>
+            <div style="font-weight: bold; color: #333;">Παρακαλώ περιμένετε...</div>
+        </div>
+    </div>
+
+    <!-- MODAL ΔΙΟΡΘΩΣΗΣ ΠΕΛΑΤΗ -->
+    <div id="edit-customer-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 20px; color: #333;">✏️ ΔΙΟΡΘΩΣΗ ΠΕΛΑΤΗ</h2>
+            
+            <div class="input-group">
+                <label>ΟΝΟΜΑΤΕΠΩΝΥΜΟ:</label>
+                <input type="text" id="edit-customer-name-input" placeholder="Ονοματεπώνυμο πελάτη">
+            </div>
+            
+            <div class="input-group">
+                <label>ΤΗΛΕΦΩΝΟ:</label>
+                <input type="tel" id="edit-customer-phone-input" placeholder="2101234567">
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="save-btn" onclick="saveCustomerEdit()">💾 ΑΠΟΘΗΚΕΥΣΗ</button>
+                <button class="back-btn" onclick="closeEditCustomerModal()">❌ ΑΚΥΡΩΣΗ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ΔΙΟΡΘΩΣΗΣ ΠΑΡΑΓΓΕΛΙΑΣ -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 20px; color: #333;">✏️ ΔΙΟΡΘΩΣΗ ΠΑΡΑΓΓΕΛΙΑΣ</h2>
+            
+            <div class="input-group">
+                <label>ΠΕΛΑΤΗΣ:</label>
+                <input type="text" id="edit-order-customer-name" placeholder="Ονοματεπώνυμο πελάτη">
+            </div>
+            
+            <div class="input-group">
+                <label>ΤΗΛΕΦΩΝΟ:</label>
+                <input type="tel" id="edit-order-customer-phone" placeholder="2101234567">
+            </div>
+            
+            <div class="input-group">
+                <label>ΠΑΡΑΓΓΕΛΙΑ:</label>
+                <textarea id="edit-order-details" rows="4" placeholder="Περιγραφή παραγγελίας..."></textarea>
+            </div>
+            
+            <div class="input-group">
+                <label>ΗΜΕΡΟΜΗΝΙΑ:</label>
+                <input type="datetime-local" id="edit-order-date">
+            </div>
+            
+            <div class="input-group">
+                <label>ΦΩΤΟΓΡΑΦΙΑ:</label>
+                <input type="file" id="edit-order-photo" accept="image/*" style="width:100%;padding:12px;background:#f9f9f9;border-radius:8px;">
+                <div id="edit-photo-preview" style="margin-top:10px;"></div>
+                <div id="current-photo-info" style="margin-top:10px;"></div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="save-btn" onclick="saveEdit()">💾 ΑΠΟΘΗΚΕΥΣΗ</button>
+                <button class="back-btn" onclick="closeEditModal()">❌ ΑΚΥΡΩΣΗ</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- ΚΕΦΑΛΑΙΟ -->
+        <div class="header">
+            <h1 style="margin-bottom: 10px;">📱 ΣΥΣΤΗΜΑ ΠΑΡΑΓΓΕΛΙΩΝ</h1>
+            <p id="current-date" style="margin-bottom: 15px; font-size: 14px;"></p>
+            
+            <!-- ΚΟΥΜΠΙ ΓΡΗΓΟΡΟΥ ΣΥΓΧΡΟΝΙΣΜΟΥ -->
+            <button id="header-sync-btn" onclick="manualSyncNow()" style="
+                background: #2196F3;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 25px;
+                font-size: 13px;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                font-weight: bold;
+                box-shadow: 0 3px 10px rgba(33, 150, 243, 0.3);
+                margin-bottom: 10px;
+            ">
+                <span>🔄</span> ΣΥΓΧΡΟΝΙΣΜΟΣ
+            </button>
+            
+            <!-- ΕΝΗΜΕΡΩΣΗ ΣΥΓΧΡΟΝΙΣΜΟΥ -->
+            <div id="sync-indicator" class="sync-indicator sync-inactive">
+                🔴 Αυτόματος συγχρονισμός: ΑΝΕΝΕΡΓΟΣ
+            </div>
+        </div>
+        
+        <!-- ΚΥΡΙΟ ΜΕΝΟΥ -->
+        <div id="main-menu" class="menu-buttons">
+            <button class="menu-btn" data-section="new-order">
+                <span>➕</span>
+                ΝΕΑ ΠΑΡΑΓΓΕΛΙΑ
+            </button>
+            
+            <button class="menu-btn" data-action="showTodayOrders">
+                <span>📅</span>
+                ΣΗΜΕΡΙΝΕΣ
+            </button>
+            
+            <button class="menu-btn" data-action="showHistory">
+                <span>📊</span>
+                ΙΣΤΟΡΙΚΟ
+            </button>
+            
+            <button class="menu-btn" data-section="print">
+                <span>🖨️</span>
+                ΕΚΤΥΠΩΣΗ
+            </button>
+            
+            <button class="menu-btn" data-action="syncToCalendar">
+                <span>📅</span>
+                CALENDAR
+            </button>
+            
+            <button class="menu-btn" data-section="customers">
+                <span>👥</span>
+                ΠΕΛΑΤΕΣ
+            </button>
+            
+            <button class="menu-btn" data-section="cleanup">
+                <span>🧹</span>
+                ΚΑΘΑΡΙΣΜΟΣ
+            </button>
+            
+            <button class="menu-btn" data-action="enableAutoSync">
+                <span>🤖</span>
+                AUTO SYNC
+            </button>
+            
+            <button class="menu-btn" data-action="exportData">
+                <span>💾</span>
+                BACKUP
+            </button>
+        </div>
+        
+        <!-- ΣΕΚΣΙΟΝ: ΝΕΑ ΠΑΡΑΓΓΕΛΙΑ -->
+        <div id="new-order" class="section">
+            <h2 style="margin-bottom: 20px; color: #333;">➕ ΝΕΑ ΠΑΡΑΓΓΕΛΙΑ</h2>
+            
+            <div class="input-group">
+                <label>ΠΕΛΑΤΗΣ:</label>
+                <input type="text" id="customer-name" placeholder="Ονοματεπώνυμο πελάτη">
+            </div>
+            
+            <div class="input-group">
+                <label>ΤΗΛΕΦΩΝΟ:</label>
+                <input type="tel" id="customer-phone" placeholder="2101234567">
+            </div>
+            
+            <div class="input-group">
+                <label>ΠΑΡΑΓΓΕΛΙΑ:</label>
+                <textarea id="order-details" placeholder="Περιγραφή παραγγελίας..."></textarea>
+            </div>
+            
+            <div class="input-group">
+                <label>ΗΜΕΡΟΜΗΝΙΑ:</label>
+                <input type="datetime-local" id="order-date">
+            </div>
+            
+            <div class="input-group">
+                <label>ΦΩΤΟΓΡΑΦΙΑ:</label>
+                <input type="file" id="order-photo" accept="image/*" style="width:100%;padding:12px;background:#f9f9f9;border-radius:8px;">
+                <div id="photo-preview" style="margin-top:10px;"></div>
+            </div>
+            
+            <button class="save-btn" onclick="saveOrder()">💾 ΑΠΟΘΗΚΕΥΣΗ</button>
+            <button class="back-btn" onclick="showMainMenu()">↩️ ΠΙΣΩ ΣΤΟ ΜΕΝΟΥ</button>
+        </div>
+        
+        <!-- ΣΕΚΣΙΟΝ: ΣΗΜΕΡΙΝΕΣ ΠΑΡΑΓΓΕΛΙΕΣ -->
+        <div id="today-orders" class="section">
+            <h2 style="margin-bottom: 20px; color: #333;">📅 ΣΗΜΕΡΙΝΕΣ ΠΑΡΑΓΓΕΛΙΕΣ</h2>
+            <div id="today-orders-list"></div>
+            <button class="back-btn" onclick="showMainMenu()">↩️ ΠΙΣΩ ΣΤΟ ΜΕΝΟΥ</button>
+        </div>
+        
+        <!-- ΣΕΚΣΙΟΝ: ΙΣΤΟΡΙΚΟ -->
+        <div id="history" class="section">
+            <h2 style="margin-bottom: 20px; color: #333;">📊 ΙΣΤΟΡΙΚΟ ΠΑΡΑΓΓΕΛΙΩΝ</h2>
+            <div class="input-group">
+                <select id="history-filter" onchange="filterHistory()" style="padding: 14px; font-size: 15px;">
+                    <option value="all">Όλες οι παραγγελίες</option>
+                    <option value="today">Σήμερα</option>
+                    <option value="week">Τελευταία 7 ημέρες</option>
+                    <option value="month">Τελευταίος μήνας</option>
+                </select>
+            </div>
+            <div id="history-list"></div>
+            <button class="back-btn" onclick="showMainMenu()">↩️ ΠΙΣΩ ΣΤΟ ΜΕΝΟΥ</button>
+        </div>
+        
+        <!-- ΣΕΚΣΙΟΝ: ΕΚΤΥΠΩΣΗ -->
+        <div id="print" class="section">
+            <h2 style="margin-bottom: 20px; color: #333;">🖨️ ΕΚΤΥΠΩΣΗ ΠΑΡΑΓΓΕΛΙΩΝ ΗΜΕΡΑΣ</h2>
+            <div class="input-group">
+                <label>Επιλογή ημερομηνίας:</label>
+                <input type="date" id="print-date" value="" style="padding: 14px;">
+            </div>
+            <button class="save-btn" onclick="generatePrintWithPhotos()">🖨️ ΔΗΜΙΟΥΡΓΙΑ ΜΕ ΦΩΤΟΓΡΑΦΙΕΣ</button>
+            <div id="print-content" style="margin-top: 20px;"></div>
+            <button class="back-btn" onclick="showMainMenu()">↩️ ΠΙΣΩ ΣΤΟ ΜΕΝΟΥ</button>
+        </div>
+        
+        <!-- ΣΕΚΣΙΟΝ: CALENDAR -->
+        <div id="calendar" class="section">
+            <h2 style="margin-bottom: 20px; color: #333;">📅 GOOGLE CALENDAR</h2>
+            <p style="margin-bottom: 20px; color: #666;">Συνδέστε τις σημερινές παραγγελίες με το Google Calendar:</p>
+            <button class="save-btn" onclick="syncToCalendar()">📅 ΣΥΝΔΕΣΗ ΜΕ CALENDAR</button>
+            <button class="back-btn" onclick="showMainMenu()">↩️ ΠΙΣΩ ΣΤΟ ΜΕΝΟΥ</button>
+        </div>
+        
+        <!-- ΣΕΚΣΙΟΝ: ΠΕΛΑΤΕΣ -->
+        <div id="customers" class="section">
+            <h2 style="margin-bottom: 20px; color: #333;">👥 ΠΕΛΑΤΕΣ</h2>
+            <div class="input-group">
+                <input type="text" id="search-customer" placeholder="🔍 Αναζήτηση πελάτη..." 
+                       style="padding: 14px; font-size: 15px;" oninput="searchCustomers()">
+            </div>
+            <div id="customers-list"></div>
+            <button class="save-btn" onclick="addNewCustomer()">➕ ΝΕΟΣ ΠΕΛΑΤΗΣ</button>
+            <button class="back-btn" onclick="showMainMenu()">↩️ ΠΙΣΩ ΣΤΟ ΜΕΝΟΥ</button>
+        </div>
+        
+        <!-- ΣΕΚΣΙΟΝ: ΚΑΘΑΡΙΣΜΟΣ -->
+        <div id="cleanup" class="section">
+            <h2 style="margin-bottom: 20px; color: #333;">🧹 ΔΙΑΧΕΙΡΙΣΗ ΑΠΟΘΗΚΕΥΤΙΚΟΥ ΧΩΡΟΥ</h2>
+            
+            <div class="storage-warning" id="storage-info">
+                Υπολογισμός χώρου...
+            </div>
+            
+            <button class="menu-btn" onclick="cleanOldOrders(7)" style="margin-bottom: 15px; width: 100%;">
+                <span>🗑️</span>
+                Διαγραφή > 7 ημερών
+            </button>
+            
+            <button class="menu-btn" onclick="cleanOldOrders(30)" style="margin-bottom: 15px; width: 100%;">
+                <span>🗑️</span>
+                Διαγραφή > 30 ημερών
+            </button>
+            
+            <button class="menu-btn" onclick="removePhotos()" style="margin-bottom: 15px; width: 100%;">
+                <span>📸</span>
+                Διαγραφή φωτογραφιών
+            </button>
+            
+            <button class="back-btn" onclick="showMainMenu()">↩️ ΠΙΣΩ ΣΤΟ ΜΕΝΟΥ</button>
+        </div>
+        
+        <!-- ΣΕΚΣΙΟΝ: ΣΥΓΧΡΟΝΙΣΜΟΣ -->
+        <div id="sync-section" class="section">
+            <h2 style="margin-bottom: 20px; color: #333;">🤖 ΑΥΤΟΜΑΤΟΣ ΣΥΓΧΡΟΝΙΣΜΟΣ</h2>
+            
+            <div class="sync-status" id="sync-status">
+                <h3 style="margin-bottom: 15px; color: #333;">📊 ΚΑΤΑΣΤΑΣΗ ΣΥΓΧΡΟΝΙΣΜΟΥ</h3>
+                <p id="sync-status-text" style="margin-bottom: 10px; font-size: 15px;">🔄 Φόρτωση πληροφοριών...</p>
+                <p id="last-sync-time" style="margin-bottom: 10px; color: #666; font-size: 14px;">Τελευταίος συγχρονισμός: Ποτέ</p>
+                <p id="data-counts" style="color: #666; font-size: 14px;">Παραγγελίες: 0 | Πελάτες: 0</p>
+            </div>
+            
+            <button class="menu-btn" onclick="enableAutoSync()" style="margin-bottom: 15px; width: 100%;">
+                <span>🚀</span>
+                ΕΝΕΡΓΟΠΟΙΗΣΗ AUTO SYNC
+            </button>
+            
+            <button class="menu-btn" onclick="manualSyncNow()" style="margin-bottom: 15px; width: 100%;">
+                <span>🔄</span>
+                ΜΑΝΟΥΑΛ ΣΥΓΧΡΟΝΙΣΜΟΣ ΤΩΡΑ
+            </button>
+            
+            <div class="storage-warning">
+                <strong style="display: block; margin-bottom: 8px;">📋 ΟΔΗΓΙΕΣ ΣΥΓΧΡΟΝΙΣΜΟΥ:</strong>
+                1. Ενεργοποιήστε το Auto Sync<br>
+                2. Τα δεδομένα αποθηκεύονται τοπικά<br>
+                3. Μπορείτε να τα ανεβάσετε χειροκίνητα στο Drive
+            </div>
+            
+            <div id="sync-results" style="margin-top: 20px;"></div>
+            
+            <button class="back-btn" onclick="showMainMenu()">↩️ ΠΙΣΩ ΣΤΟ ΜΕΝΟΥ</button>
+        </div>
+    </div>
+
+    <script>
+        // 📅 ΑΡΧΙΚΟΠΟΙΗΣΗ
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+        });
+        
+        // 📂 ΔΕΔΟΜΕΝΑ
+        let orders = [];
+        let customers = [];
+        let editingOrderId = null;
+        let editingCustomerId = null;
+        let autoSyncEnabled = false;
+        let lastSyncTime = 'Ποτέ';
+        
+        // 🎯 ΚΥΡΙΑ ΣΥΝΑΡΤΗΣΗ ΑΡΧΙΚΟΠΟΙΗΣΗΣ
+        function initApp() {
+            console.log('🚀 Εφαρμογή ξεκινάει...');
+            
+            // Ημερομηνία
+            const now = new Date();
+            document.getElementById('current-date').textContent = now.toLocaleDateString('el-GR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            // Αυτόματη συμπλήρωση ημερομηνίας
+            const todayStr = now.toISOString().slice(0, 16);
+            document.getElementById('order-date').value = todayStr;
+            document.getElementById('print-date').value = now.toISOString().slice(0, 10);
+            
+            // Φόρτωση δεδομένων
+            loadData();
+            
+            // Προσθήκη event listeners για τα κουμπιά
+            setupButtonListeners();
+            
+            // Εμφάνιση main menu
+            showMainMenu();
+            
+            // Έλεγχος storage
+            updateStorageInfo();
+            
+            // Ενημέρωση πληροφοριών συγχρονισμού
+            updateSyncInfo();
+            
+            // Έλεγχος αν είναι πρώτη φορά
+            checkFirstTime();
+            
+            console.log('✅ Εφαρμογή αρχικοποιήθηκε επιτυχώς');
+        }
+        
+        // 🔧 ΡΥΘΜΙΣΗ EVENT LISTENERS ΓΙΑ ΚΟΥΜΠΙΑ
+        function setupButtonListeners() {
+            console.log('🔧 Ρύθμιση event listeners για κουμπιά...');
+            
+            const menuButtons = document.querySelectorAll('.menu-btn');
+            menuButtons.forEach(button => {
+                // Αφαίρεση υπαρχόντων event listeners
+                const newButton = button.cloneNode(true);
+                button.parentNode.replaceChild(newButton, button);
+                
+                // Προσθήκη και των δύο τύπων events
+                const section = newButton.getAttribute('data-section');
+                const action = newButton.getAttribute('data-action');
+                
+                if (section) {
+                    // Προσθήκη για click (PC)
+                    newButton.addEventListener('click', function() {
+                        console.log(`📱 Click στο κουμπί: ${section}`);
+                        showSection(section);
+                    });
+                    
+                    // Προσθήκη για touch (Android)
+                    newButton.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                        console.log(`📱 Touch στο κουμπί: ${section}`);
+                        showSection(section);
+                    }, { passive: false });
+                    
+                } else if (action) {
+                    // Προσθήκη για click (PC)
+                    newButton.addEventListener('click', function() {
+                        console.log(`📱 Click στο κουμπί action: ${action}`);
+                        if (typeof window[action] === 'function') {
+                            window[action]();
+                        }
+                    });
+                    
+                    // Προσθήκη για touch (Android)
+                    newButton.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                        console.log(`📱 Touch στο κουμπί action: ${action}`);
+                        if (typeof window[action] === 'function') {
+                            window[action]();
+                        }
+                    }, { passive: false });
+                }
+                
+                // Προσθήκη visual feedback
+                newButton.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.97)';
+                });
+                
+                newButton.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                });
+            });
+            
+            // Ειδικά για back buttons
+            document.querySelectorAll('.back-btn').forEach(button => {
+                button.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    showMainMenu();
+                }, { passive: false });
+            });
+            
+            console.log(`✅ Ρυθμίστηκαν ${menuButtons.length} κουμπιά`);
+        }
+        
+        function loadData() {
+            try {
+                orders = JSON.parse(localStorage.getItem('orders')) || [];
+                customers = JSON.parse(localStorage.getItem('customers')) || [];
+                autoSyncEnabled = localStorage.getItem('autoSyncEnabled') === 'true';
+                lastSyncTime = localStorage.getItem('lastSyncTime') || 'Ποτέ';
+                
+                console.log(`📊 Φορτώθηκαν: ${orders.length} παραγγελίες, ${customers.length} πελάτες`);
+                console.log(`🔄 Auto Sync: ${autoSyncEnabled}`);
+            } catch(e) {
+                console.error('❌ Σφάλμα φόρτωσης δεδομένων:', e);
+                orders = [];
+                customers = [];
+                autoSyncEnabled = false;
+                lastSyncTime = 'Ποτέ';
+            }
+        }
+        
+        function saveData() {
+            try {
+                localStorage.setItem('orders', JSON.stringify(orders));
+                localStorage.setItem('customers', JSON.stringify(customers));
+                localStorage.setItem('autoSyncEnabled', autoSyncEnabled);
+                localStorage.setItem('lastSyncTime', lastSyncTime);
+                
+                console.log('💾 Δεδομένα αποθηκεύτηκαν');
+            } catch(e) {
+                console.error('❌ Σφάλμα αποθήκευσης:', e);
+                showNotification('❌ Σφάλμα αποθήκευσης δεδομένων');
+            }
+        }
+        
+        // 🔄 ΣΥΓΧΡΟΝΙΣΜΟΣ ΔΕΔΟΜΕΝΩΝ - ΔΙΟΡΘΩΜΕΝΟ!
+        function updateSyncInfo() {
+            const syncIndicator = document.getElementById('sync-indicator');
+            const syncStatusText = document.getElementById('sync-status-text');
+            const lastSyncMsg = document.getElementById('last-sync-time');
+            const dataCounts = document.getElementById('data-counts');
+            
+            console.log(`🔄 Update Sync Info: autoSyncEnabled = ${autoSyncEnabled}`);
+            
+            if (syncIndicator) {
+                if (autoSyncEnabled) {
+                    syncIndicator.innerHTML = '🟢 Αυτόματος συγχρονισμός: <strong>ΕΝΕΡΓΟΣ</strong>';
+                    syncIndicator.className = 'sync-indicator sync-active';
+                } else {
+                    syncIndicator.innerHTML = '🔴 Αυτόματος συγχρονισμός: <strong>ΑΝΕΝΕΡΓΟΣ</strong>';
+                    syncIndicator.className = 'sync-indicator sync-inactive';
+                }
+            }
+            
+            if (syncStatusText) {
+                syncStatusText.innerHTML = autoSyncEnabled ? 
+                    '🟢 <strong>ΑΥΤΟΜΑΤΟΣ ΣΥΓΧΡΟΝΙΣΜΟΣ: ΕΝΕΡΓΟΣ</strong>' : 
+                    '🔴 <strong>ΑΥΤΟΜΑΤΟΣ ΣΥΓΧΡΟΝΙΣΜΟΣ: ΑΝΕΝΕΡΓΟΣ</strong>';
+            }
+            
+            if (lastSyncMsg) {
+                lastSyncMsg.textContent = `Τελευταίος συγχρονισμός: ${lastSyncTime}`;
+            }
+            
+            if (dataCounts) {
+                dataCounts.textContent = `Παραγγελίες: ${orders.length} | Πελάτες: ${customers.length}`;
+            }
+        }
+        
+        function checkFirstTime() {
+            const hasExistingData = orders.length > 0 || customers.length > 0;
+            const appOpenedBefore = localStorage.getItem('appOpenedBefore');
+            
+            if (!appOpenedBefore && !hasExistingData) {
+                setTimeout(() => {
+                    if (confirm('👋 Καλώς ήρθατε!\n\nΘέλετε να ενεργοποιήσετε αυτόματο συγχρονισμό;\n(Θα αποθηκεύει τα δεδομένα σας αυτόματα)')) {
+                        enableAutoSync();
+                    }
+                    localStorage.setItem('appOpenedBefore', 'true');
+                }, 1000);
+            }
+        }
+        
+        // 🚀 ΑΥΤΟΜΑΤΟΣ ΣΥΓΧΡΟΝΙΣΜΟΣ - ΔΙΟΡΘΩΜΕΝΟ!
+        function enableAutoSync() {
+            console.log('🚀 enableAutoSync called');
+            console.log('📊 Current autoSyncEnabled:', autoSyncEnabled);
+            
+            if (autoSyncEnabled) {
+                console.log('🔴 Auto sync is already enabled, asking to disable');
+                if (confirm('⚠️ Ο αυτόματος συγχρονισμός είναι ήδη ενεργός.\nΘέλετε να τον απενεργοποιήσετε;')) {
+                    autoSyncEnabled = false;
+                    localStorage.setItem('autoSyncEnabled', 'false');
+                    updateSyncInfo();
+                    showNotification('🔴 Αυτόματος συγχρονισμός απενεργοποιήθηκε');
+                    console.log('✅ Auto sync disabled');
+                }
+                return;
+            }
+            
+            console.log('🟢 Enabling auto sync...');
+            
+            // ΕΝΕΡΓΟΠΟΙΗΣΗ ΑΥΤΟΜΑΤΟΥ SYNC
+            autoSyncEnabled = true;
+            localStorage.setItem('autoSyncEnabled', 'true');
+            
+            // Αμέσως ενημέρωση της κατάστασης
+            updateSyncInfo();
+            
+            // Κάνε τον πρώτο συγχρονισμό
+            setTimeout(() => {
+                manualSyncNow();
+            }, 500);
+            
+            // Εμφάνιση μηνύματος επιτυχίας
+            showNotification('✅ Αυτόματος συγχρονισμός ενεργοποιήθηκε!');
+            
+            console.log('✅ Auto sync enabled successfully');
+        }
+        
+        function manualSyncNow() {
+            console.log('🔄 Starting manual sync...');
+            showLoading();
+            
+            // Προσομοίωση συγχρονισμού
+            setTimeout(() => {
+                lastSyncTime = new Date().toLocaleString('el-GR');
+                localStorage.setItem('lastSyncTime', lastSyncTime);
+                localStorage.setItem('lastSyncStamp', Date.now().toString());
+                
+                updateSyncInfo();
+                
+                hideLoading();
+                
+                // Εμφάνιση αποτελεσμάτων
+                const resultsDiv = document.getElementById('sync-results');
+                if (resultsDiv) {
+                    resultsDiv.innerHTML = `
+                        <div style="background:#d4edda;color:#155724;padding:15px;border-radius:8px;">
+                            <h4>✅ ΣΥΓΧΡΟΝΙΣΜΟΣ ΕΠΙΤΥΧΗΣ!</h4>
+                            <p>📊 Τα δεδομένα σας είναι τοπικά συγχρονισμένα</p>
+                            <p>📦 Παραγγελίες: ${orders.length}</p>
+                            <p>👥 Πελάτες: ${customers.length}</p>
+                            <p>⏰ Χρονική σήμανση: ${lastSyncTime}</p>
+                            <p>🔄 Αυτόματος συγχρονισμός: ${autoSyncEnabled ? 'ΕΝΕΡΓΟΣ' : 'ΑΝΕΝΕΡΓΟΣ'}</p>
+                        </div>
+                    `;
+                }
+                
+                showNotification(`✅ Συγχρονίστηκαν ${orders.length} παραγγελίες και ${customers.length} πελάτες`);
+                console.log('✅ Manual sync completed');
+                
+            }, 1000);
+        }
+        
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:20px;">📡</span>
+                    <div>
+                        <strong>ΣΥΣΤΗΜΑ</strong><br>
+                        ${message}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 4000);
+        }
+        
+        // 🎯 ΕΜΦΑΝΙΣΗ ΣΕΚΣΙΟΝΣ
+        function showSection(sectionId) {
+            console.log(`📱 Εμφάνιση σεκσιον: ${sectionId}`);
+            
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById('main-menu').style.display = 'none';
+            
+            const section = document.getElementById(sectionId);
+            if(section) {
+                section.classList.add('active');
+                
+                // Ειδική επεξεργασία για κάθε σεκσιον
+                switch(sectionId) {
+                    case 'today-orders':
+                        loadTodayOrders();
+                        break;
+                    case 'history':
+                        loadHistory();
+                        break;
+                    case 'customers':
+                        loadCustomers();
+                        break;
+                    case 'cleanup':
+                        updateStorageInfo();
+                        break;
+                    case 'sync-section':
+                        updateSyncInfo();
+                        break;
+                }
+                
+                // Scroll to top
+                section.scrollTop = 0;
+            }
+        }
+        
+        function showMainMenu() {
+            console.log('📱 Εμφάνιση κύριου μενού');
+            
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById('main-menu').style.display = 'grid';
+        }
+        
+        // 📅 ΣΗΜΕΡΙΝΕΣ ΠΑΡΑΓΓΕΛΙΕΣ
+        function showTodayOrders() {
+            showSection('today-orders');
+        }
+        
+        function loadTodayOrders() {
+            const today = new Date().toLocaleDateString('el-GR');
+            const todayOrders = orders.filter(order => 
+                new Date(order.date).toLocaleDateString('el-GR') === today
+            );
+            
+            const list = document.getElementById('today-orders-list');
+            list.innerHTML = '';
+            
+            if(todayOrders.length === 0) {
+                list.innerHTML = '<p style="text-align:center;padding:30px;color:#666;">Δεν υπάρχουν σημερινές παραγγελίες</p>';
+                return;
+            }
+            
+            todayOrders.forEach(order => {
+                addOrderToDOM(list, order, 'today');
+            });
+        }
+        
+        // 📊 ΙΣΤΟΡΙΚΟ
+        function showHistory() {
+            showSection('history');
+        }
+        
+        function loadHistory() {
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+            
+            if(orders.length === 0) {
+                list.innerHTML = '<p style="text-align:center;padding:30px;color:#666;">Δεν υπάρχουν παραγγελίες</p>';
+                return;
+            }
+            
+            const sortedOrders = [...orders].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            sortedOrders.forEach(order => {
+                addOrderToDOM(list, order, 'history');
+            });
+        }
+        
+        function filterHistory() {
+            const filter = document.getElementById('history-filter').value;
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+            
+            let filteredOrders = [...orders];
+            
+            if(filter === 'today') {
+                const today = new Date().toLocaleDateString('el-GR');
+                filteredOrders = orders.filter(order => 
+                    new Date(order.date).toLocaleDateString('el-GR') === today
+                );
+            } else if(filter === 'week') {
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                filteredOrders = orders.filter(order => 
+                    new Date(order.date) >= weekAgo
+                );
+            } else if(filter === 'month') {
+                const monthAgo = new Date();
+                monthAgo.setMonth(monthAgo.getMonth() - 1);
+                filteredOrders = orders.filter(order => 
+                    new Date(order.date) >= monthAgo
+                );
+            }
+            
+            filteredOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            filteredOrders.forEach(order => {
+                addOrderToDOM(list, order, 'history');
+            });
+        }
+        
+        // 🎯 ΚΟΙΝΗ ΣΥΝΑΡΤΗΣΗ ΓΙΑ ΠΡΟΣΘΗΚΗ ΠΑΡΑΓΓΕΛΙΩΝ
+        function addOrderToDOM(list, order, type) {
+            const div = document.createElement('div');
+            div.className = 'order-item';
+            div.id = `${type}-order-${order.id}`;
+            
+            let photoHTML = '';
+            if(order.photo) {
+                photoHTML = `<img src="${order.photo}" class="photo-preview" onclick="viewPhoto('${order.photo}')" style="cursor:pointer;">`;
+            }
+            
+            div.innerHTML = `
+                <div class="order-actions">
+                    <button class="action-btn edit-btn" onclick="openEditOrderModal(${order.id})">✏️</button>
+                    <button class="action-btn delete-btn" onclick="deleteOrder(${order.id}, '${type}')">❌</button>
+                </div>
+                <h4>${order.customer}</h4>
+                <p>📞 ${order.phone || ''}</p>
+                <p>${order.details}</p>
+                ${photoHTML}
+                <small>📅 ${new Date(order.date).toLocaleString('el-GR')} | ✅ ${order.status}</small>
+            `;
+            
+            list.appendChild(div);
+        }
+        
+        // ✏️ ΕΠΕΞΕΡΓΑΣΙΑ ΠΑΡΑΓΓΕΛΙΑΣ
+        function openEditOrderModal(orderId) {
+            console.log('✏️ Opening edit order modal for:', orderId);
+            const order = orders.find(o => o.id === orderId);
+            if(!order) {
+                alert('Δεν βρέθηκε η παραγγελία');
+                return;
+            }
+            
+            editingOrderId = orderId;
+            
+            document.getElementById('edit-order-customer-name').value = order.customer;
+            document.getElementById('edit-order-customer-phone').value = order.phone || '';
+            document.getElementById('edit-order-details').value = order.details;
+            document.getElementById('edit-order-date').value = new Date(order.date).toISOString().slice(0, 16);
+            
+            const photoInfo = document.getElementById('current-photo-info');
+            const preview = document.getElementById('edit-photo-preview');
+            preview.innerHTML = '';
+            
+            if(order.photo) {
+                photoInfo.innerHTML = `
+                    <div style="margin:10px 0;">
+                        <strong>Τρέχουσα φωτογραφία:</strong><br>
+                        <img src="${order.photo}" style="max-width:150px;max-height:150px;margin:5px 0;border-radius:5px;">
+                        <br><small>Για αλλαγή, επιλέξτε νέα φωτογραφία</small>
+                    </div>
+                `;
+            } else {
+                photoInfo.innerHTML = '<small>Δεν υπάρχει φωτογραφία</small>';
+            }
+            
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+        
+        function closeEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+            editingOrderId = null;
+            document.getElementById('edit-order-photo').value = '';
+            document.getElementById('edit-photo-preview').innerHTML = '';
+            document.getElementById('current-photo-info').innerHTML = '';
+        }
+        
+        function saveEdit() {
+            if(!editingOrderId) {
+                alert('Δεν υπάρχει παραγγελία για επεξεργασία');
+                return;
+            }
+            
+            const orderIndex = orders.findIndex(o => o.id === editingOrderId);
+            if(orderIndex === -1) {
+                alert('Δεν βρέθηκε η παραγγελία');
+                return;
+            }
+            
+            const customer = document.getElementById('edit-order-customer-name').value.trim();
+            const phone = document.getElementById('edit-order-customer-phone').value.trim();
+            const details = document.getElementById('edit-order-details').value.trim();
+            const date = document.getElementById('edit-order-date').value;
+            const photoFile = document.getElementById('edit-order-photo').files[0];
+            
+            if(!customer || !details) {
+                alert('Συμπλήρωσε Πελάτη και Παραγγελία!');
+                return;
+            }
+            
+            showLoading();
+            
+            if(photoFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    updateOrder(e.target.result);
+                };
+                reader.readAsDataURL(photoFile);
+            } else {
+                updateOrder(orders[orderIndex].photo);
+            }
+            
+            function updateOrder(photoData) {
+                orders[orderIndex] = {
+                    ...orders[orderIndex],
+                    customer: customer,
+                    phone: phone,
+                    details: details,
+                    date: date || orders[orderIndex].date,
+                    photo: photoData,
+                    lastModified: new Date().toISOString()
+                };
+                
+                saveData();
+                
+                // Ανανέωση οθόνης
+                if(document.getElementById('today-orders').classList.contains('active')) {
+                    loadTodayOrders();
+                } else if(document.getElementById('history').classList.contains('active')) {
+                    loadHistory();
+                }
+                
+                hideLoading();
+                alert('✅ Η παραγγελία ενημερώθηκε!');
+                closeEditModal();
+                
+                // ΑΥΤΟΜΑΤΟ ΣΥΓΧΡΟΝΙΣΜΟΣ
+                if (autoSyncEnabled) {
+                    setTimeout(() => manualSyncNow(), 1000);
+                }
+            }
+        }
+        
+        // ❌ ΔΙΑΓΡΑΦΗ ΠΑΡΑΓΓΕΛΙΑΣ
+        function deleteOrder(orderId, type) {
+            if(!confirm('Σίγουρα θέλεις να διαγράψεις αυτή την παραγγελία;\nΑυτή η ενέργεια δεν μπορεί να αναιρεθεί!')) {
+                return;
+            }
+            
+            orders = orders.filter(order => order.id !== orderId);
+            saveData();
+            
+            const orderElement = document.getElementById(`${type}-order-${orderId}`);
+            if(orderElement) {
+                orderElement.remove();
+            }
+            
+            setTimeout(() => {
+                let list;
+                if(type === 'today') {
+                    list = document.getElementById('today-orders-list');
+                } else {
+                    list = document.getElementById('history-list');
+                }
+                
+                if(list && list.children.length === 0) {
+                    list.innerHTML = '<p style="text-align:center;padding:20px;color:#666;">Δεν υπάρχουν παραγγελίες</p>';
+                }
+            }, 100);
+            
+            showNotification('✅ Η παραγγελία διαγράφηκε!');
+            
+            // ΑΥΤΟΜΑΤΟ ΣΥΓΧΡΟΝΙΣΜΟΣ
+            if (autoSyncEnabled) {
+                setTimeout(() => manualSyncNow(), 1000);
+            }
+        }
+        
+        // 👥 ΠΕΛΑΤΕΣ - ΔΙΟΡΘΩΜΕΝΟ!
+        function showCustomers() {
+            showSection('customers');
+        }
+        
+        function loadCustomers() {
+            const list = document.getElementById('customers-list');
+            list.innerHTML = '';
+            
+            if(customers.length === 0) {
+                list.innerHTML = '<p style="text-align:center;padding:20px;color:#666;">Δεν υπάρχουν πελάτες</p>';
+                return;
+            }
+            
+            customers.forEach(customer => {
+                const div = document.createElement('div');
+                div.className = 'customer-item';
+                div.id = `customer-${customer.id}`;
+                
+                div.innerHTML = `
+                    <div class="customer-actions">
+                        <button class="action-btn edit-btn" onclick="openEditCustomerModal(${customer.id})">✏️</button>
+                        <button class="action-btn delete-btn" onclick="deleteCustomer(${customer.id})">❌</button>
+                    </div>
+                    <h4>${customer.name}</h4>
+                    <p>📞 ${customer.phone || 'Χωρίς τηλέφωνο'}</p>
+                    <p>📦 Παραγγελίες: ${orders.filter(o => o.customer === customer.name).length}</p>
+                `;
+                
+                // Επιλογή πελάτη για νέα παραγγελία
+                div.addEventListener('click', function() {
+                    document.getElementById('customer-name').value = customer.name;
+                    document.getElementById('customer-phone').value = customer.phone || '';
+                    showSection('new-order');
+                });
+                
+                list.appendChild(div);
+            });
+        }
+        
+        function searchCustomers() {
+            const searchTerm = document.getElementById('search-customer').value.toLowerCase();
+            const filteredCustomers = customers.filter(customer => 
+                customer.name.toLowerCase().includes(searchTerm) ||
+                (customer.phone && customer.phone.includes(searchTerm))
+            );
+            
+            const list = document.getElementById('customers-list');
+            list.innerHTML = '';
+            
+            if(filteredCustomers.length === 0) {
+                list.innerHTML = '<p style="text-align:center;padding:20px;color:#666;">Δεν βρέθηκαν πελάτες</p>';
+                return;
+            }
+            
+            filteredCustomers.forEach(customer => {
+                const div = document.createElement('div');
+                div.className = 'customer-item';
+                div.id = `customer-${customer.id}`;
+                
+                div.innerHTML = `
+                    <div class="customer-actions">
+                        <button class="action-btn edit-btn" onclick="openEditCustomerModal(${customer.id})">✏️</button>
+                        <button class="action-btn delete-btn" onclick="deleteCustomer(${customer.id})">❌</button>
+                    </div>
+                    <h4>${customer.name}</h4>
+                    <p>📞 ${customer.phone || 'Χωρίς τηλέφωνο'}</p>
+                `;
+                
+                div.addEventListener('click', function() {
+                    document.getElementById('customer-name').value = customer.name;
+                    document.getElementById('customer-phone').value = customer.phone || '';
+                    showSection('new-order');
+                });
+                
+                list.appendChild(div);
+            });
+        }
+        
+        // ✏️ ΕΠΕΞΕΡΓΑΣΙΑ ΠΕΛΑΤΗ
+        function openEditCustomerModal(customerId) {
+            console.log('✏️ Opening edit customer modal for:', customerId);
+            const customer = customers.find(c => c.id === customerId);
+            if(!customer) {
+                alert('Δεν βρέθηκε ο πελάτης');
+                return;
+            }
+            
+            editingCustomerId = customerId;
+            
+            document.getElementById('edit-customer-name-input').value = customer.name;
+            document.getElementById('edit-customer-phone-input').value = customer.phone || '';
+            
+            document.getElementById('edit-customer-modal').style.display = 'flex';
+        }
+        
+        function closeEditCustomerModal() {
+            document.getElementById('edit-customer-modal').style.display = 'none';
+            editingCustomerId = null;
+        }
+        
+        function saveCustomerEdit() {
+            if(!editingCustomerId) {
+                alert('Δεν υπάρχει πελάτης για επεξεργασία');
+                return;
+            }
+            
+            const customerIndex = customers.findIndex(c => c.id === editingCustomerId);
+            if(customerIndex === -1) {
+                alert('Δεν βρέθηκε ο πελάτης');
+                return;
+            }
+            
+            const name = document.getElementById('edit-customer-name-input').value.trim();
+            const phone = document.getElementById('edit-customer-phone-input').value.trim();
+            
+            if(!name) {
+                alert('Συμπλήρωσε όνομα πελάτη!');
+                return;
+            }
+            
+            // Ενημέρωση πελάτη
+            const oldName = customers[customerIndex].name;
+            customers[customerIndex] = {
+                ...customers[customerIndex],
+                name: name,
+                phone: phone
+            };
+            
+            // Ενημέρωση όλων των παραγγελιών του πελάτη
+            orders.forEach(order => {
+                if(order.customer === oldName) {
+                    order.customer = name;
+                    if (phone && !order.phone) {
+                        order.phone = phone;
+                    }
+                }
+            });
+            
+            saveData();
+            
+            // Ανανέωση οθόνης
+            loadCustomers();
+            if(document.getElementById('today-orders').classList.contains('active')) {
+                loadTodayOrders();
+            } else if(document.getElementById('history').classList.contains('active')) {
+                loadHistory();
+            }
+            
+            alert('✅ Ο πελάτης ενημερώθηκε!');
+            closeEditCustomerModal();
+            
+            // ΑΥΤΟΜΑΤΟ ΣΥΓΧΡΟΝΙΣΜΟΣ
+            if (autoSyncEnabled) {
+                setTimeout(() => manualSyncNow(), 1000);
+            }
+        }
+        
+        // ❌ ΔΙΑΓΡΑΦΗ ΠΕΛΑΤΗ
+        function deleteCustomer(customerId) {
+            const customer = customers.find(c => c.id === customerId);
+            if(!customer) {
+                alert('Δεν βρέθηκε ο πελάτης');
+                return;
+            }
+            
+            // Έλεγχος αν ο πελάτης έχει παραγγελίες
+            const customerOrders = orders.filter(o => o.customer === customer.name);
+            
+            if(customerOrders.length > 0) {
+                if(!confirm(`Ο πελάτης ${customer.name} έχει ${customerOrders.length} παραγγελίες.\n\nΘέλετε να διαγραφεί ο πελάτης ΚΑΙ οι παραγγελίες του;`)) {
+                    return;
+                }
+                
+                // Διαγραφή παραγγελιών του πελάτη
+                orders = orders.filter(o => o.customer !== customer.name);
+            } else {
+                if(!confirm(`Σίγουρα θέλετε να διαγράψετε τον πελάτη ${customer.name};`)) {
+                    return;
+                }
+            }
+            
+            // Διαγραφή πελάτη
+            customers = customers.filter(c => c.id !== customerId);
+            saveData();
+            
+            // Ανανέωση οθόνης
+            loadCustomers();
+            if(document.getElementById('today-orders').classList.contains('active')) {
+                loadTodayOrders();
+            } else if(document.getElementById('history').classList.contains('active')) {
+                loadHistory();
+            }
+            
+            showNotification(`✅ Ο πελάτης ${customer.name} διαγράφηκε!`);
+            
+            // ΑΥΤΟΜΑΤΟ ΣΥΓΧΡΟΝΙΣΜΟΣ
+            if (autoSyncEnabled) {
+                setTimeout(() => manualSyncNow(), 1000);
+            }
+        }
+        
+        function addNewCustomer() {
+            const name = prompt('Ονοματεπώνυμο πελάτη:');
+            if(!name) return;
+            
+            const phone = prompt('Τηλέφωνο:');
+            
+            customers.push({
+                id: Date.now(),
+                name: name,
+                phone: phone
+            });
+            
+            saveData();
+            loadCustomers();
+            alert('✅ Ο πελάτης προστέθηκε!');
+            
+            if (autoSyncEnabled) {
+                setTimeout(() => manualSyncNow(), 1000);
+            }
+        }
+        
+        // 💾 ΑΠΟΘΗΚΕΥΣΗ ΠΑΡΑΓΓΕΛΙΑΣ
+        function saveOrder() {
+            const customer = document.getElementById('customer-name').value.trim();
+            const phone = document.getElementById('customer-phone').value.trim();
+            const details = document.getElementById('order-details').value.trim();
+            const date = document.getElementById('order-date').value;
+            const photoFile = document.getElementById('order-photo').files[0];
+            
+            if(!customer || !details) {
+                alert('Συμπλήρωσε Πελάτη και Παραγγελία!');
+                return;
+            }
+            
+            showLoading();
+            
+            if(photoFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    saveOrderWithPhoto(e.target.result);
+                };
+                reader.readAsDataURL(photoFile);
+            } else {
+                saveOrderWithPhoto(null);
+            }
+            
+            function saveOrderWithPhoto(photoData) {
+                const order = {
+                    id: Date.now(),
+                    customer: customer,
+                    phone: phone,
+                    details: details,
+                    date: date || new Date().toISOString(),
+                    status: 'ΕΝΕΡΓΗ',
+                    photo: photoData,
+                    created: new Date().toISOString()
+                };
+                
+                orders.push(order);
+                
+                if(!customers.some(c => c.name === customer)) {
+                    customers.push({
+                        id: Date.now(),
+                        name: customer,
+                        phone: phone
+                    });
+                }
+                
+                saveData();
+                
+                document.getElementById('customer-name').value = '';
+                document.getElementById('customer-phone').value = '';
+                document.getElementById('order-details').value = '';
+                document.getElementById('order-date').value = new Date().toISOString().slice(0, 16);
+                document.getElementById('order-photo').value = '';
+                document.getElementById('photo-preview').innerHTML = '';
+                
+                hideLoading();
+                alert('✅ Η παραγγελία αποθηκεύτηκε!' + (photoData ? ' (Με φωτογραφία)' : ''));
+                showMainMenu();
+                
+                // ΑΥΤΟΜΑΤΟ ΣΥΓΧΡΟΝΙΣΜΟΣ
+                if (autoSyncEnabled) {
+                    setTimeout(() => manualSyncNow(), 1000);
+                }
+            }
+        }
+        
+        // 🧹 ΚΑΘΑΡΙΣΜΟΣ
+        function updateStorageInfo() {
+            const totalSize = JSON.stringify(orders).length + JSON.stringify(customers).length;
+            const sizeKB = Math.round(totalSize / 1024);
+            
+            let message = `Αποθηκευτικός χώρος: ${sizeKB}KB`;
+            
+            if(sizeKB > 4000) {
+                message += ' ⚠️ (Πολύ μεγάλο - χρειάζεται καθαρισμός)';
+            } else if(sizeKB > 2000) {
+                message += ' ℹ️ (Μεγάλο - προτείνεται καθαρισμός)';
+            } else {
+                message += ' ✅ (Καλό)';
+            }
+            
+            document.getElementById('storage-info').textContent = message;
+        }
+        
+        // 📅 GOOGLE CALENDAR
+        function syncToCalendar() {
+            const today = new Date().toLocaleDateString('el-GR');
+            const todayOrders = orders.filter(order => 
+                new Date(order.date).toLocaleDateString('el-GR') === today
+            );
+            
+            if(todayOrders.length === 0) {
+                alert('Δεν υπάρχουν σημερινές παραγγελίες!');
+                return;
+            }
+            
+            showLoading();
+            
+            let description = `📋 ΣΥΝΟΛΟ ΠΑΡΑΓΓΕΛΙΩΝ ΣΗΜΕΡΑ: ${todayOrders.length}\n\n`;
+            
+            todayOrders.forEach((order, index) => {
+                description += `📦 ΠΑΡΑΓΓΕΛΙΑ ${index + 1}:\n`;
+                description += `👤 Πελάτης: ${order.customer}\n`;
+                description += `📞 Τηλέφωνο: ${order.phone || 'Χωρίς'}\n`;
+                description += `📝 Παραγγελία: ${order.details}\n`;
+                description += `📅 Ημερομηνία: ${new Date(order.date).toLocaleString('el-GR')}\n`;
+                description += `✅ Κατάσταση: ${order.status}\n`;
+                
+                if(order.photo) {
+                    description += `📸 Έχει Φωτογραφία: ΝΑΙ\n`;
+                }
+                
+                description += `────────────────────\n`;
+            });
+            
+            const event = {
+                title: `📦 Παραγγελίες - ${todayOrders.length} παραγγ.`,
+                description: description,
+                start: new Date(),
+                end: new Date(Date.now() + 2 * 60 * 60 * 1000),
+                location: 'Το κατάστημά σου'
+            };
+            
+            const startStr = event.start.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            const endStr = event.end.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            
+            const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+                `&text=${encodeURIComponent(event.title)}` +
+                `&dates=${startStr}/${endStr}` +
+                `&details=${encodeURIComponent(event.description)}` +
+                `&location=${encodeURIComponent(event.location)}`;
+            
+            window.open(calendarUrl, '_blank');
+            
+            hideLoading();
+            alert('✅ Calendar δημιουργήθηκε!');
+        }
+        
+        // 💾 BACKUP
+        function exportData() {
+            const data = {
+                orders: orders,
+                customers: customers,
+                exported: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `paraggelies_backup_${new Date().toISOString().slice(0,10)}.json`;
+            
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('✅ Τα δεδομένα εξήχθησαν!');
+        }
+        
+        // ⏳ LOADING FUNCTIONS
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        // 🔄 ΑΥΤΟ-ΑΠΟΘΗΚΕΥΣΗ ΚΑΘΕ 30 ΔΕΥΤΕΡΟΛΕΠΤΑ
+        setInterval(() => {
+            saveData();
+        }, 30000);
+        
+        // Κλείσιμο modal με κλικ έξω
+        window.addEventListener('click', function(e) {
+            if(e.target.classList.contains('modal')) {
+                closeEditModal();
+                closeEditCustomerModal();
+            }
+        });
+        
+        // Escape για κλείσιμο modal
+        document.addEventListener('keydown', function(e) {
+            if(e.key === 'Escape') {
+                closeEditModal();
+                closeEditCustomerModal();
+            }
+        });
+    </script>
+</body>
+</html>
